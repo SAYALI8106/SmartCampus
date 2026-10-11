@@ -4,20 +4,10 @@
 [![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-1.9.3-764ABC?logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
 [![Ant Design](https://img.shields.io/badge/Ant%20Design-5.4.2-0170FE?logo=antdesign&logoColor=white)](https://ant.design/)
 [![Firebase](https://img.shields.io/badge/Firebase-v9%20Compat-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![Security](https://img.shields.io/badge/Security-Dynamic%20Rotating%20QR-brightgreen.svg)](#-the-solution-dynamic-rolling-qr-architecture)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Hackathon Winner](https://img.shields.io/badge/🏆%20National%20Winner-Pragyaa%20SGGS-gold.svg)](#-hackathon-recognition)
 
 > **Live Deployment:** [https://digiicampus.netlify.app/](https://digiicampus.netlify.app/)
-
----
-
-## 🏆 Hackathon Recognition
-
-**SmartCampus (DigiCampus)** is an award-winning project that won **1st Place at the National Level Hackathon (Pragyaa)** organized by **SGGS Institute of Engineering & Technology, Nanded, Maharashtra (India)**, competing against elite developer teams across the nation.
-
-- **Winning Team:** Phantom Troupe
-- **Team Leader:** Shubham Vyavhare
-- **Core Domain:** Campus Digitalization, Smart Education & Anti-Proxy Attendance Automation
 
 ---
 
@@ -26,17 +16,17 @@
 Despite rapid technological advancements, universities and colleges predominantly depend on **manual paper-based attendance sheets** or **static attendance registers**.
 
 ### Major Issues with Traditional Attendance:
-1. **Pervasive Proxy Attendance:** Friends routinely mark signatures or shout roll numbers on behalf of absent classmates.
+1. **Pervasive Proxy Attendance:** Students routinely sign or call out roll numbers on behalf of absent peers.
 2. **Heavy Time Consumption:** Physical roll calls consume 10–15 minutes out of a typical 60-minute lecture (loss of ~20% instructional time).
-3. **Paper Wastage & Storage Burdens:** Thousands of physical sheets and registers require printing, manual archiving, and storage every semester.
+3. **Paper Wastage & Storage Burdens:** Thousands of physical sheets and registers require printing, manual archiving, and physical storage each semester.
 4. **Data Loss & Discrepancies:** Paper records easily get damaged, lost, or misplaced, leading to grade reporting errors and administrative friction.
-5. **Lack of Instant Analytics:** Faculties cannot quickly see student attendance percentages, trends, or branch-wide reports.
+5. **Lack of Instant Analytics:** Faculties cannot quickly view attendance percentages, trends, or branch-wide reports in real time.
 
 ---
 
 ## 💡 The Solution: Dynamic Rolling QR Architecture
 
-SmartCampus solves proxy attendance through a **time-limited cryptographic rotating QR code pipeline**.
+SmartCampus eliminates proxy attendance through a **time-limited cryptographic rotating QR code pipeline**.
 
 ```mermaid
 sequenceDiagram
@@ -59,9 +49,9 @@ sequenceDiagram
 ```
 
 ### Why it is 100% Proxy-Free:
-1. **Dynamic 20-Second Expiry:** Every QR code expires and rotates automatically after 20 seconds. An absent student cannot receive a screenshot via WhatsApp/Telegram and scan it in time.
+1. **Dynamic 20-Second Expiry:** Every QR code expires and rotates automatically after 20 seconds. An absent student cannot receive a screenshot via messaging apps and scan it in time.
 2. **Student-Specific Token Binding:** Each QR code is uniquely tied to a specific student's roll number, name, branch, and session timestamp (`<RollNo> <Name> <Branch> <DD-MM-YYYY>`).
-3. **Instant Single-Submission Lock:** Once a student marks attendance, their device session is verified and locked to prevent marking for other students.
+3. **Instant Single-Submission Lock:** Once a student marks attendance, their device session is verified and locked to prevent marking for others.
 4. **Interactive Faculty Controls:** Faculties have instant Pause/Resume, Next Student, Previous Student, and time adjustment controls to accommodate classroom pacing.
 
 ---
@@ -69,19 +59,19 @@ sequenceDiagram
 ## ✨ Features & Portals
 
 ### 1. 👨‍🏫 Faculty / Teacher Portal
-- **Enrolled Student Management:** Register individual students with Roll No, Name, and Branch. Includes a **1-click batch loader** (`+ Load SGGS Demo Batch`) to populate testing batches instantly.
+- **Enrolled Student Management:** Register individual students with Roll No, Name, and Branch. Includes a **1-click batch loader** (`+ Load Sample Demo Batch`) to populate testing batches instantly.
 - **Dynamic Attendance Session Generator:** Start interactive attendance sessions for any subject and branch. Includes countdown timer bars, clipboard copy for payload testing, and manual override navigation.
 - **Real-Time Attendance Log & Analytics:** Parsed attendance log showing Roll No, Student Name, Branch, Session Date, Status Tag (`Present`), and Exact Timestamp. Features search, refresh, and clear tools.
 
 ### 2. 🧑‍🎓 Student Attendance Portal
 - **Integrated Camera Scanner:** Uses live webcam/device camera stream (`react-qr-reader`) to scan classroom QR codes in real-time.
 - **Manual Code Input Fallback:** Accommodates students on devices without webcams or restricted browser permissions by permitting manual QR string submission.
-- **Quick Evaluation Simulator:** Test buttons (`Mark Shubham (Roll 1)`, `Mark Pawan (Roll 2)`, etc.) enabling 1-click test evaluations.
+- **Quick Evaluation Simulator:** Test buttons (`Mark Student (Roll 1)`, `Mark Student (Roll 2)`, etc.) enabling 1-click test evaluations.
 - **Instant Verification Display:** Immediate visual confirmation card displaying verified student identity and timestamp.
 
 ### 3. 🔐 Security & User Session
 - **Firebase Google OAuth:** Authenticate securely using official Google accounts.
-- **1-Click Demo Evaluation Login:** Built-in demo faculty account (`Prof. Sharma (SGGS CSE)`) allowing full offline/local evaluation without hitting Firebase OAuth domain restrictions.
+- **1-Click Demo Evaluation Login:** Built-in demo faculty account (`Faculty Demo Account`) allowing full offline/local evaluation without hitting Firebase OAuth domain restrictions.
 - **Persistent Auth State:** Seamless session sync across page reloads using Firebase `onAuthStateChanged` and Redux Toolkit.
 
 ---
@@ -113,7 +103,7 @@ SmartCampus/
 ├── public/                       # Static public assets
 │   ├── applogo.png               # DigiCampus brand logo
 │   ├── favicon.ico               # Website favicon
-│   ├── index.html                # Single-page HTML root template
+│   ├── index.html                # Single-Page HTML root template
 │   ├── manifest.json             # Web app manifest
 │   └── images/                   # Landing page illustrations & feature cards
 │       ├── banner.png
@@ -128,7 +118,7 @@ SmartCampus/
 │   ├── firebase.js               # Firebase client SDK initialization & Firestore references
 │   ├── components/               # Shared reusable components
 │   │   ├── Footer/
-│   │   │   ├── Footer.js         # Site footer with hackathon credits
+│   │   │   ├── Footer.js         # Site footer with platform links
 │   │   │   └── Footer.module.scss
 │   │   └── Menus/
 │   │       ├── MenuTop.js        # Responsive navigation bar, Google & Demo Auth buttons
@@ -150,7 +140,7 @@ SmartCampus/
 │   ├── redux/
 │   │   └── redux.js              # Redux slice for authentication state
 │   └── utils/
-│       ├── constants.js          # SGGS Hackathon batch seed data
+│       ├── constants.js          # Sample student batch seed data
 │       └── menu.js               # Navigation menu items configuration
 ```
 
@@ -191,20 +181,20 @@ npm run build
 
 ## 🧪 Step-by-Step Testing & Verification Guide
 
-Follow these 5 simple steps to test the entire application end-to-end:
+Follow these simple steps to test the entire application end-to-end:
 
 ### Step 1: Login
 - Open `http://localhost:3000` in your browser.
 - In the top-right navigation bar, click **"Demo Login"** (or use **"Google Login"**).
-- You will see the authenticated faculty session badge: `Prof. Sharma (SGGS CSE)`.
+- You will see the authenticated faculty session badge: `Faculty Demo Account`.
 
 ### Step 2: Open Teacher Portal
 - Click **"Attendance"** in the top navigation or click **"Go to Attendance"** on the hero banner.
 - Select the **"Teacher Portal"** tab.
 
 ### Step 3: Populate Students
-- Under the **"Add Student"** menu, click **"+ Load SGGS Demo Batch (5 Students)"**.
-- The registered student table will immediately display all 5 students (Shubham Vyavhare, Pawan Shahane, Vaishnavi Savant, etc.).
+- Under the **"Add Student"** menu, click **"+ Load Sample Demo Batch (5 Students)"**.
+- The registered student table will immediately display all 5 enrolled demo students.
 
 ### Step 4: Create Dynamic Attendance Session
 - Click the **"Create Attendance"** menu on the left sidebar.
@@ -221,7 +211,7 @@ Follow these 5 simple steps to test the entire application end-to-end:
 - Choose any method:
   1. Click **"Launch Camera Scanner"** to scan with your webcam.
   2. **OR** paste the copied payload into the text field and click **"Submit"**.
-  3. **OR** click one of the quick simulator buttons (e.g. **"Mark Shubham (Roll 1)"**).
+  3. **OR** click one of the quick simulator buttons (e.g. **"Mark Student (Roll 1)"**).
 - An immediate verification card confirms: **"Attendance Recorded Successfully!"**.
 
 ### Step 6: View Live Attendance Log
@@ -243,13 +233,5 @@ Follow these 5 simple steps to test the entire application end-to-end:
 
 ---
 
-## 👥 Authors & Team Credits
-
-- **Project Lead & Developer:** Shubham Vyavhare
-- **Team:** Phantom Troupe
-- **Institution:** SGGS Institute of Engineering & Technology, Nanded
-
----
-
 ## 📄 License
-This project is licensed under the MIT License - feel free to use it for educational and non-commercial research projects.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
