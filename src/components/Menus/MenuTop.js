@@ -5,110 +5,137 @@ import classes from "./MenuTop.module.scss";
 import { MenuOutlined, CloseOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { auth, provider } from "../../firebase";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loginActions } from "../../redux/redux";
-import { useSelector } from "react-redux";
 import db from "../../firebase";
 import applogo from "./applogo.png";
+
 const MenuTop = (props) => {
   const user = useSelector((state) => state.user);
-  const [isLoginned, setIsLoggined] = useState(false);
-  const [current, setCurrent] = useState("mail");
+  const isLoginned = Boolean(user);
+  const [current, setCurrent] = useState("/");
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [toggleMenu, setToggleMenu] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  // to get screenwidht for managing responsiveness as screenwidht decrease or increase
+  // Listen to screen width changes for responsive layout
   useEffect(() => {
     const updateWindowDimensions = () => {
-      const newWidth = window.innerWidth;
-      setWindowWidth(newWidth);
+      setWindowWidth(window.innerWidth);
     };
     window.addEventListener("resize", updateWindowDimensions);
     return () => window.removeEventListener("resize", updateWindowDimensions);
   }, []);
 
-  // Google Login
-  const dispatch = useDispatch();
+  // Sync Firebase Auth state with Redux store on reload
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (currentUser && !user) {
+        dispatch(loginActions.login({ user: currentUser }));
+      }
+    });
+    return () => unsubscribe();
+  }, [dispatch, user]);
+
+  // Google Sign-In with Firebase
   const signIn = () => {
     auth
       .signInWithPopup(provider)
       .then((result) => {
-        const user = result.user;
-        const email = user.email;
-
+        const loggedUser = result.user;
+        const email = loggedUser.email;
         const usersRef = db.collection("users");
 
-        // 3. Check if the user's email already exists in the "users" collection
         usersRef
           .where("email", "==", email)
           .get()
           .then((querySnapshot) => {
             if (querySnapshot.empty) {
-              // 4a. If the email does not exist in the "users" collection, add it
               usersRef
-                .doc(user.uid)
-                .set({
-                  email: email,
-                })
-                .then(() => {
-                  notification.open({
-                    status: "success",
-                    message: "Login successful",
-                  });
-                  console.log("Email added to users collection");
-                })
-                .catch((error) => {
-                  console.error(
-                    "Error adding email to users collection: ",
-                    error
-                  );
-                });
-            } else {
-              // 4b. If the email already exists in the "users" collection, log a message
-              notification.open({
-                status: "success",
-                message: "Login successful",
-              });
+                .doc(loggedUser.uid)
+                .set({ email })
+                .then(() => console.log("Email added to users collection"))
+                .catch((err) => console.error("Error setting user document:", err));
             }
           })
-          .catch((error) => {
-            console.error("Error querying users collection: ", error);
-          });
+          .catch((err) => console.error("Error querying users collection:", err));
 
-        dispatch(loginActions.login({ user: result.user }));
-        setIsLoggined(true);
+        dispatch(loginActions.login({ user: loggedUser }));
+        notification.success({
+          message: "Login Successful",
+          description: `Welcome ${loggedUser.displayName || email}!`,
+        });
       })
       .catch((error) => {
-        alert(error.message);
+        console.error("Auth error:", error);
+        notification.error({
+          message: "Google Login Issue",
+          description:
+            error.message +
+            " Note: You can use 'Demo Login' for instant local evaluation.",
+        });
       });
   };
 
-  // action to be performed after clicking menu
+  // Quick Demo Login for testing and offline/local environment
+  const loginDemo = () => {
+    const demoUser = {
+      uid: "demo_teacher_sggs",
+      displayName: "Prof. Sharma (SGGS CSE)",
+      email: "teacher.cse@sggs.ac.in",
+    };
+    dispatch(loginActions.login({ user: demoUser }));
+
+    // Ensure demo document exists in Firestore for student / attendance records
+    db.collection("users")
+      .doc(demoUser.uid)
+      .set({ email: demoUser.email }, { merge: true })
+      .catch((err) => console.log("Demo user firestore init:", err));
+
+    notification.success({
+      message: "Logged in as Demo Teacher",
+      description: "Full teacher & attendance features unlocked.",
+    });
+  };
+
+  // Sign out handler
+  const handleLogout = () => {
+    auth.signOut().catch((err) => console.log("Signout err:", err));
+    dispatch(loginActions.login({ user: null }));
+    notification.info({
+      message: "Logged Out",
+      description: "You have been logged out successfully.",
+    });
+    navigate("/");
+  };
+
+  // Navigation click handler
   const onClick = (e) => {
-    if (e.key === "pages/attendance" && !user) {
-      notification.open({
-        status: "success",
-        message: "Please Login First to Access",
+    if ((e.key === "pages/attendance" || e.key === "/attendance") && !user) {
+      notification.warning({
+        message: "Login Required",
+        description: "Please login with Google or Demo Login to access Attendance.",
       });
       return;
     }
-    console.log("click ", e);
-    navigate(`${e.key}`);
+    const dest = e.key.startsWith("/") ? e.key : `/${e.key}`;
+    navigate(dest);
     setCurrent(e.key);
   };
 
-  // for responsive menu declaring area
-  let logoSpan = 6,
-    buttonSpan = 4,
-    menuSpan = 14;
+  // Responsive column spans
+  let logoSpan = 5,
+    buttonSpan = 7,
+    menuSpan = 12;
+
   if (windowWidth > 930 && windowWidth <= 1200) {
-    logoSpan = 24;
-    menuSpan = 20;
-    buttonSpan = 4;
-  } else if (windowWidth < 930) {
     logoSpan = 16;
-    buttonSpan = 5;
+    menuSpan = 16;
+    buttonSpan = 8;
+  } else if (windowWidth < 930) {
+    logoSpan = 12;
+    buttonSpan = 10;
   }
 
   return (
@@ -118,7 +145,7 @@ const MenuTop = (props) => {
           classes.menuTop
         }`}
       >
-        <Row>
+        <Row align="middle">
           <Col
             span={4}
             lg={4}
@@ -129,9 +156,7 @@ const MenuTop = (props) => {
             <Button
               onClick={() => setToggleMenu(true)}
               className={classes.menuButtonIcon}
-              style={{
-                marginBottom: 16,
-              }}
+              style={{ marginBottom: 16 }}
             >
               <MenuOutlined />
             </Button>
@@ -139,10 +164,16 @@ const MenuTop = (props) => {
           <Col
             span={logoSpan}
             md={logoSpan}
-            sm={15}
-            xs={windowWidth > 320 ? 12 : 11}
+            sm={12}
+            xs={windowWidth > 320 ? 10 : 9}
           >
-            <img src={applogo} alt="app logo" className={classes.appLogo} />
+            <img
+              src={applogo}
+              alt="app logo"
+              className={classes.appLogo}
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/")}
+            />
           </Col>
           <Col
             span={menuSpan}
@@ -168,30 +199,51 @@ const MenuTop = (props) => {
           <Col
             span={buttonSpan}
             md={buttonSpan}
-            sm={6}
-            xs={8}
+            sm={9}
+            xs={10}
             className={classes.buttonArea}
           >
             {isLoginned ? (
-              <div>
-                <strong className={classes.user}>{user.displayName}</strong>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <strong className={classes.user}>
+                  {user.displayName || user.email || "Teacher"}
+                </strong>
                 <LogoutOutlined
                   className={classes.logOut}
-                  onClick={() => {
-                    setIsLoggined(false);
-                    dispatch(loginActions.login({ user: null })); navigate('/')}}
+                  title="Logout"
+                  onClick={handleLogout}
                 />
-                :
               </div>
             ) : (
-              <Button
-                size={windowWidth <= 930 ? "default" : "large"}
-                className={classes.exploreButton}
-                onClick={signIn}
-                type="primary"
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  flexWrap: "wrap",
+                  justifyContent: "flex-end",
+                }}
               >
-                Google Login
-              </Button>
+                <Button
+                  size={windowWidth <= 930 ? "small" : "middle"}
+                  className={classes.exploreButton}
+                  onClick={signIn}
+                  type="primary"
+                >
+                  Google Login
+                </Button>
+                <Button
+                  size={windowWidth <= 930 ? "small" : "middle"}
+                  onClick={loginDemo}
+                  style={{
+                    borderColor: "var(--primary-color)",
+                    color: "var(--primary-color)",
+                    background: "transparent",
+                  }}
+                >
+                  Demo Login
+                </Button>
+              </div>
             )}
           </Col>
         </Row>

@@ -3,30 +3,37 @@ import React from "react";
 import Student from "./Student";
 import Teacher from "./Teacher";
 import classes from "./index.module.scss";
+import { UserOutlined, SolutionOutlined } from "@ant-design/icons";
+
 const Attendance = () => {
-  const onChange = (key) => {
-    console.log(key);
-  };
   const items = [
     {
-      key: "1",
-      label: `Student`,
-      children: <Student />,
-    },
-    {
-      key: "2",
-      label: `Teacher`,
+      key: "teacher",
+      label: (
+        <span>
+          <SolutionOutlined /> Teacher Portal
+        </span>
+      ),
       children: <Teacher />,
     },
+    {
+      key: "student",
+      label: (
+        <span>
+          <UserOutlined /> Student Portal
+        </span>
+      ),
+      children: <Student />,
+    },
   ];
+
   return (
-    <div className="container">
+    <div className="container" style={{ minHeight: "82vh", paddingBottom: "2rem" }}>
       <Row>
         <Col span={24} className={classes.tabsContainer}>
           <Tabs
-            defaultActiveKey="1"
+            defaultActiveKey="teacher"
             items={items}
-            onChange={onChange}
             className={classes.attendanceTabs}
           />
         </Col>

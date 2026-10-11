@@ -47,6 +47,7 @@ const FeatureCards = () => {
         {featureCards.map((card) => {
           return (
             <Col
+              key={card.title}
               span={12}
               xs={24}
               sm={24}
